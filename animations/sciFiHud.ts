@@ -14,8 +14,32 @@ type Ring = {
   width: number;
   arcSize: number;
 };
+type Routes = 'projects3' | 'resume' | 'contact' | 'index'
+
+const ringStaticConfigs: Record<Routes, {
+  speedMod: number;
+}> = {
+  projects3: {
+    speedMod: 15,
+  },
+  resume: {
+    speedMod: 30,
+  },
+  contact: {
+    speedMod: 30,
+  },
+  index: {
+    speedMod: 1
+  }
+}
 
 type VisorMode = 'combat' | 'scan' | 'echo';
+const visorConfigs: Record<Routes, VisorMode> = {
+  projects3: 'echo',
+  resume: 'scan',
+  contact: 'scan',
+  index: 'combat'
+};
 const visorStyles: Record<VisorMode, {
   tint: string;
   glow: string;
@@ -81,6 +105,7 @@ export function startSciFiHud() {
 
   window.addEventListener('scroll', () => {
     scrollY = window.scrollY;
+    console.log("scrolled");
   });
 
 
@@ -142,9 +167,10 @@ export function startSciFiHud() {
   //cursor scan targets
   const targetTypes: TargetType[] = ['hostile', 'neutral', 'artifact'];
 
-const targets: ScanTarget[] = Array.from({ length: 7 }).map(() => ({
-  x: Math.random() * w,
-  y: Math.random() * h,
+const targets: ScanTarget[] = Array.from({ length: 2 }).map((_, i) => ({
+  x: cx + w/3 * Math.cos( 0 + (i * 7) ),
+  y: cy + h/3 * Math.sin(0 + (i * 7)),
+  theta: 0 + (i * 7),
   r: 14 + Math.random() * 10,
   rotation: Math.random() * Math.PI,
   pulse: Math.random() * 10,
@@ -203,8 +229,9 @@ router.afterEach(() => {
 
     ctx.arc(cx, cy, r.radius, r.angle, r.angle + r.arcSize);
     ctx.stroke();
-
-    r.angle += r.speed;
+    const path = router.currentRoute.value.name?.toString() as Routes;
+    r.angle += r.speed * ringStaticConfigs[path].speedMod;
+    
   }
 
   function drawPulse() {
@@ -223,6 +250,13 @@ router.afterEach(() => {
     ctx.fillRect(0, scanY, w, 2);
   }
 
+  function drawTargetLines(t: ScanTarget) {
+    ctx.strokeStyle = colors.scan;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(t.x, t.y);
+    ctx.stroke();
+  }
   function drawTarget(t: ScanTarget) {
     const dx = mouseX - t.x;
     const dy = mouseY - t.y;
@@ -242,9 +276,14 @@ router.afterEach(() => {
   
     // Ambient drift when idle
     if (!t.locked) {
-      t.x += Math.sin(Date.now() * 0.0003 + t.y) * 0.04;
-      t.y += Math.cos(Date.now() * 0.0003 + t.x) * 0.04;
-      t.y += Math.sin(scrollY * 20 + t.x) * 0.05;
+      //t.x += Math.sin(Date.now() * 0.03 + t.y) * .5;
+      //t.y += Math.cos(Date.now() * 0.03 + t.x) * .5;
+      //cy + h/3 * Math.sin(0 + (i * 7))
+      //x: cx + w/3 * Math.cos( 0 + (i * 7) ),
+      //y: cy + h/3 * Math.sin(0 + (i * 7)),
+      t.theta = (t.theta + .001) % 6.28 * 1;
+      t.x = cx + w/3 * Math.cos(t.theta);
+      t.y = cy + h/3 * Math.sin(t.theta);
     }
   
     t.rotation += t.locked ? 0.04 : 0.008;
@@ -331,7 +370,8 @@ router.afterEach(() => {
   
   function draw() {
     ctx.clearRect(0, 0, w, h);
-
+    const path = router.currentRoute.value.name?.toString() as Routes;
+    currentVisor = visorConfigs[path];
     // soft vignette
     //ctx.fillStyle = 'rgba(0,0,0,0.15)';
     //ctx.fillRect(0, 0, w, h);
@@ -341,10 +381,10 @@ router.afterEach(() => {
 
     drawPulse();
     rings.forEach(drawRing);
-    //targets.forEach(drawTarget);
+    targets.forEach(drawTarget);
     drawScanText();
     drawScanline();
-
+    targets.forEach(drawTargetLines);
   }
 
   gsap.ticker.add(draw);
@@ -366,6 +406,7 @@ type ScanTarget = {
   locked: boolean;
   scanProgress: number;
   type: TargetType;
+  theta: number;
 };
 
 

@@ -148,7 +148,7 @@ export function animateScrambleText(str: string) {
     type: 'chars',
     charsClass: 'char',
   });
-  gsap.to(split.chars, {
+  return gsap.to(split.chars, {
     duration: 2,
     overwrite: true,
     stagger: 0.05,
@@ -158,6 +158,22 @@ export function animateScrambleText(str: string) {
       speed: 0.4,
     },
   });
+}
+
+export function animateScrambleTextTimeline(el: HTMLElement) {
+  if (!import.meta.client) return;
+  gsap.registerPlugin(ScrambleTextPlugin);
+  let tl = gsap.timeline({paused: true});
+  tl.to(el, {
+    duration: 2,
+    stagger: 0.05,
+    scrambleText: {
+      text: 'プラジェクトアーカイブ',
+      chars: 'マリオフプラジェクトロレスヴェンセスアーカイブ',
+      revealDelay: 0.2,
+    },
+  });
+  return tl;
 }
 
 export function animateScanWipe(el: string) {
