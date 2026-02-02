@@ -14,12 +14,12 @@ type Ring = {
   width: number;
   arcSize: number;
 };
-type Routes = 'projects3' | 'resume' | 'contact' | 'index'
+type Routes = 'projects' | 'resume' | 'contact' | 'index'
 
 const ringStaticConfigs: Record<Routes, {
   speedMod: number;
 }> = {
-  projects3: {
+  projects: {
     speedMod: 15,
   },
   resume: {
@@ -35,7 +35,7 @@ const ringStaticConfigs: Record<Routes, {
 
 type VisorMode = 'combat' | 'scan' | 'echo';
 const visorConfigs: Record<Routes, VisorMode> = {
-  projects3: 'echo',
+  projects: 'echo',
   resume: 'scan',
   contact: 'scan',
   index: 'combat'
@@ -220,7 +220,7 @@ router.afterEach(() => {
     },
   });
 
-  function drawRing(r: Ring) {
+  function drawRing(r: Ring, path: Routes) {
     ctx.beginPath();
     ctx.strokeStyle = colors.glow;
     ctx.lineWidth = r.width;
@@ -229,7 +229,6 @@ router.afterEach(() => {
 
     ctx.arc(cx, cy, r.radius, r.angle, r.angle + r.arcSize);
     ctx.stroke();
-    const path = router.currentRoute.value.name?.toString() as Routes;
     r.angle += r.speed * ringStaticConfigs[path].speedMod;
     
   }
@@ -370,8 +369,8 @@ router.afterEach(() => {
   
   function draw() {
     ctx.clearRect(0, 0, w, h);
-    const path = router.currentRoute.value.name?.toString() as Routes;
-    currentVisor = visorConfigs[path];
+    const path = router.currentRoute.value.name?.toString().includes("projects") ? "projects": router.currentRoute.value.name?.toString();
+    currentVisor = visorConfigs[path as Routes];
     // soft vignette
     //ctx.fillStyle = 'rgba(0,0,0,0.15)';
     //ctx.fillRect(0, 0, w, h);
@@ -380,7 +379,7 @@ router.afterEach(() => {
     ctx.fillRect(0, 0, w, h);
 
     drawPulse();
-    rings.forEach(drawRing);
+    rings.forEach((r) => drawRing(r,path as Routes));
     targets.forEach(drawTarget);
     drawScanText();
     drawScanline();

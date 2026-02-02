@@ -4,6 +4,7 @@ export type ScanNavTarget = {
     route: string
     scanTime: number
     status: 'idle' | 'locked' | 'scanning' | 'complete'
+    katakana: string,
     onComplete?: () => void
   }
   

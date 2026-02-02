@@ -1,24 +1,27 @@
 <template>
-  <div ref="rootEl" class="scan-target cursor-none pointer-events-auto flex items-center justify-center" 
+  <div ref="rootEl" 
+  class=" aspect-square scan-target cursor-none pointer-events-auto grid place-items-center w-64 h-24" 
   @mouseenter="onEnter"
   @mouseleave="onLeave" 
   @click="onClick"
-  @scan-complete="spawnProjectNodes"
   >
-    <div class="target-ring" />
-    <div class="target-label flex items-center justify-center gsap-split-text-scramble2">{{ label }}</div>
+    <div class="target-label col-start-1 row-start-1 z-10 gsap-split-text-scramble2">{{ label }}</div>
 
     <!-- Scan Progress Ring -->
-    <svg v-if="isActive" class="absolute inset-0">
-      <circle
-        cx="25%"
-        cy="45%"
-        r="20%"
-        stroke="currentColor"
-        fill="none"
-        :stroke-dasharray="dash"
-      />
-    </svg>
+    <svg
+    class="col-start-1 row-start-1 w-full h-full"
+    v-show="isActive"
+    >
+  <circle
+    cx="50%"
+    cy="50%"
+    r="30"
+    stroke="red"
+    stroke-width="2"
+    fill="none"
+    :stroke-dasharray="dash"
+  />
+</svg>
 
   </div>
 </template>
@@ -40,6 +43,7 @@ const props = defineProps<{
   label: string
   route: string
   scanTime?: number
+  katakana: string
 }>()
 
 const scan = useScanNavManager()
@@ -51,9 +55,9 @@ onMounted(() => {
     route: props.route,
     scanTime: props.scanTime ?? 1.2,
     status: 'idle',
-    onComplete: spawnProjectNodes,
+    katakana: props.katakana,
   })
-  textAnim = animateScrambleTextTimeline(rootEl.value!);
+  textAnim = animateScrambleTextTimeline(rootEl.value!.querySelector('.target-label')!, props.katakana);
 })
 
 onUnmounted(() => {
@@ -79,34 +83,6 @@ function onClick() {
   scan.startScan()
 }
 
-const projectTree = useProjectScanTree()
-
-function spawnProjectNodes() {
-  console.log("spawning")
-  projectTree.spawnProjects([
-    {
-      id: 'proj-1',
-      label: 'GameWizApi',
-      route: '/projects#1',
-      angle: 45,
-      radius: 350
-    },
-    {
-      id: 'proj-2',
-      label: 'Metroid UI System',
-      route: '/projects#2',
-      angle: 90,
-      radius: 350
-    },
-    {
-      id: 'proj-3',
-      label: 'Realtime Chat Server',
-      route: '/projects#3',
-      angle: 180,
-      radius: 50
-    },
-  ])
-}
 </script>
 
 <style>

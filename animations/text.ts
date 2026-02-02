@@ -160,7 +160,7 @@ export function animateScrambleText(str: string) {
   });
 }
 
-export function animateScrambleTextTimeline(el: HTMLElement) {
+export function animateScrambleTextTimeline(el: HTMLElement, str: string) {
   if (!import.meta.client) return;
   gsap.registerPlugin(ScrambleTextPlugin);
   let tl = gsap.timeline({paused: true});
@@ -168,9 +168,9 @@ export function animateScrambleTextTimeline(el: HTMLElement) {
     duration: 2,
     stagger: 0.05,
     scrambleText: {
-      text: 'プラジェクトアーカイブ',
+      text: `${str}`,
       chars: 'マリオフプラジェクトロレスヴェンセスアーカイブ',
-      revealDelay: 0.2,
+      revealDelay: 0,
     },
   });
   return tl;

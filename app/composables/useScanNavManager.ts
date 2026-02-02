@@ -45,7 +45,8 @@ export function useScanNavManager () {
 
     gsap.to(scanProgress, {
       value: 100,
-      duration: target.scanTime,
+      duration: 2,
+      overwrite: 'auto',
       ease: 'none',
       onComplete: () => completeScan(target),
     })
@@ -60,7 +61,7 @@ export function useScanNavManager () {
   function completeScan(target: ScanNavTarget) {
     scanning.value = false
     target.onComplete?.()
-    console.log('Scan completed');
+    router.push(target.route);
   }
 
   return {
@@ -75,3 +76,4 @@ export function useScanNavManager () {
     startScan,
   }
 }
+

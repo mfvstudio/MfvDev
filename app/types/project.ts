@@ -1,9 +1,9 @@
 export type ProjectScanNode = {
     id: string
-    label: string
+    title: string
     route: string
-    scanTime?: number
-    angle?: number
-    radius?: number
+    type: string
+    summary: string
+    status: string
   }
   
